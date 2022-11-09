@@ -231,7 +231,7 @@ def arx(na, nb, nk, u, y, opt=0):
                 A[i, j] = append([0], a[ka:ka+na[i,j]])
             ka += na[i, j]
     # Model
-    m = polymodel('ARX', A, B, None, None, None, nk, da+db, (u, y), nu, ny, 1)
+    m = polymodel('arx', A, B, None, None, None, nk, da+db, (u, y), nu, ny, 1)
     e = filtmat(A, yo[L:Ny, 0:ny]) - filtmat(B, u[L:Nu, 0:nu])
     sig = (e.T @ e)/Ny
     isig = inv(sig)
