@@ -69,7 +69,7 @@ def load_data(filename, delim=",", skip_rows=1):
     """
     try:
         data = loadtxt(filename, dtype=float, delimiter=delim, skiprows=skip_rows)
-        print("csv_data.py::load_data -- Successfully loaded " + os.path.basename(filename) + ".")
+        print("csv_data.py::load_data -- Successfully loaded " + filename + ".")
         return data
     except IOError:
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), filename) from None
