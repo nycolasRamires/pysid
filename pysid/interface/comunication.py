@@ -4,7 +4,7 @@ Module for the functions that do the prints and make the connection with the use
 import tkinter as tk   
 from tkinter.filedialog import askopenfilename
 from pysid.io.csv_data import *
-from pysid.interface import solve
+from pysid.interface import solve, plot
 
 def initial_menu():
     print(f'Pysid(v0.1) - Identificação de sistemas')
@@ -26,7 +26,8 @@ def print_infos():
     print("- O seprador default é a vírgula.")
     print("- No .csv a ordem das colunas deve ser entradas(u), saídas(y)")
     print("- As ordens dos polinomios devem ser inteiros")
-    print("- Assume-se que o arquivo de dados importados possui mais amostras do que a ordem mais alta de atrasos")
+    print("- Utilize arquivos .csv ou .txt")
+    print("- O minimos quadrados(MQ) e o minimos quadrados recursivo(MQR) devem dar resultados\n muito próximos, variam apenas na implementação")
     print("\n--------------\n")
 
 
@@ -79,11 +80,11 @@ def sep_data(nu,ny,data):
 def get_order_polys(cmd):
     na = int(input("Ordem de A(q):\n>> "))
     nb = int(input("Ordem de B(q):\n>> "))
-    if(cmd != 1):
+    if(cmd == 2):
         nc = int(input("Ordem de C(q):\n>> "))
     else:
         nc = 0
-    nk = int(input("nk:\n--> "))
+    nk = int(input("nk:\n>> "))
     return na,nb,nc,nk
 
 def main():
@@ -115,7 +116,7 @@ def main():
                         data = load_data(filename,delim=config[0],skip_rows=int(config[1]))
                         nu = int(input("Informe quantas colunas de entradas há na amostragem:\n>> "))
                         if nu > data.shape[1]-1:
-                            print("***Valor inválido, não há colunas referentes a saída***")
+                            print("***Valor inválido, não há colunas referentes a saída***\n")
                         else:
                             file = True #ok, tudo certo com o file
                             ny = data.shape[1]-nu
@@ -123,13 +124,21 @@ def main():
             if file:
                 na, nb, nc, nk = get_order_polys(cmd)
                 if   cmd == 1:
-                    solve.mq_interface(na,nb,nk,u,y,prec=int(config[2]))
+                    m = solve.mq_interface(na,nb,nk,u,y,prec=int(config[2]))
+                    if nu == 1 and ny == 1:
+                        p = input("Deseja plotar os dados?[Y/N]\n>> ")
+                        if p == 'y' or p == 'Y':
+                            plot.plot(m,u,y)
                 elif cmd == 2:
-                    solve.mqe_interface(na,nb,nc,nk,u,y,float(config[4])/100,int(config[3]),int(config[2]))
+                    m = solve.mqe_interface(na,nb,nc,nk,u,y,float(config[4])/100,int(config[3]),int(config[2]))
+                    if nu == 1 and ny == 1:
+                        p = input("Deseja plotar os dados?[Y/N]\n>> ")
+                        if p == 'y' or p == 'Y':
+                            plot.plot(m,u,y)
                 elif cmd == 3:
-                    # solve.mqr(na,nb,nc,nk,u,y)
-                    print("Ainda não")
-                print("\n-------------------------\n")
+                    solve.mqr_interface(na,nb,nk,u,y,int(config[2]))
+
+                print("\n-------------------\n")
                 repeat = input("Deseja usar os mesmos dados?[Y/N]\n>> ")
                 if repeat == 'Y' or repeat == 'y':
                     repeat_file = True
