@@ -18,7 +18,7 @@ from .models import polymodel
 import numpy.fft as fft
 
 # functions
-__all__ = ['fir', 'arx', 'armax', 'oe', 'bj', 'pem']
+__all__ = ['fir', 'arx', 'armax', 'oe', 'bj', 'pem', 'emq']
 
 # Implementation
 def filtmat(matrix, signal, diag=-1, isvec=True):
@@ -1449,17 +1449,16 @@ def emq(na,nb,nc,nk,u,y,th,n_max):
 
     """
     nu = u.shape[1]
-    ny = u.shape[1]
+    ny = y.shape[1]
     
     nbk = nb+nk
     
     w = max(na,nbk,nc)
-    psi = zeros([y.shape[0]-w,nu*(nb+1)+ny*na])
+    # psi = zeros([y.shape[0]-w,nu*(nb+1)+ny*na])
     
     y_sol = y[w:] #saida usada para theta resoluçaõ do problema linear
-    u_reg = zeros([u.shape[0]-w,nu*(nb+nk)])
+    u_reg = zeros([u.shape[0]-w,nu*(nb+1)])
     cont = 0
-    
     # nb quantos atrasos vou olhar
     # nk onde eu começo a olhar(-1, -2, -3,...)
     for c in range(nu): #para cada entrada
@@ -1473,7 +1472,7 @@ def emq(na,nb,nc,nk,u,y,th,n_max):
             y_reg[:,cont] = -y[w-na+i:y.shape[0]-na+i,c]
             cont = cont + 1 
     psi = concatenate((u_reg,y_reg),axis=1)
-
+    
     #MQ padrão : theta = pseudo_inversa(psi) * y
     theta_mq = qrsolm(psi,y_sol)
     
@@ -1523,14 +1522,17 @@ def emq(na,nb,nc,nk,u,y,th,n_max):
     
     nbp = nb+1
     
+    #Preencher o cada elemento de B com zeros referentes a nk
+    # Se nk é 3 B deve ser [0 0 bo b1 b2]
+    
     for c in range(ny):
         for i in range(nu):
             if i == 0:
                 B[c,i] = theta_emq[i*(nbp)-1+nbp::-1,c]
             else:
                 B[c,i] = theta_emq[i*(nbp-1)+nbp:(nbp-1)*i:-1,c]
-            B[c,i] = insert(B[c,i],0,0)
-    
+            B[c,i] = insert(B[c,i],0,zeros((nk))) #coloca zeros no começo
+            
     for c in range(ny):
         for i in range(nu):
             if i == 0:
