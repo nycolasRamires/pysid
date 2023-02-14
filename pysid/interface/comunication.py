@@ -1,10 +1,9 @@
 """
 Module for the functions that do the prints and make the connection with the user
 """
-import tkinter as tk   
+import tkinter as tk
 from tkinter.filedialog import askopenfilename
 from pysid.io.csv_data import *
-from pysid.interface import solve, plot
 
 def initial_menu():
     print(f'Pysid(v0.1) - Identificação de sistemas')
@@ -97,7 +96,7 @@ def main():
             for i in range(4):
                 config[i+1] = config[i+1]
             config = config[:-1]
-            
+
     except:
         config = [",",1,4,100,0.05]
     filename = None
@@ -153,4 +152,5 @@ def main():
                    f.write(str(item)+"-")
            # print(config)
 
-main()
+if __name__ == __main__:
+    main()
